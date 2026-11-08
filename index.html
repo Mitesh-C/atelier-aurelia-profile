@@ -104,7 +104,7 @@ h2.ptitle{font-size:clamp(1.5rem,3.1vw,2.5rem);line-height:1.02}
 .cover h1 .l2{display:block;font-style:italic;color:var(--clay)}
 .cover .ctag{margin-top:1.1rem;max-width:34ch;color:var(--ink-soft);font-size:clamp(.85rem,1.15vw,1rem);line-height:1.6}
 .cover .cmeta{display:flex;align-items:center;gap:.7rem;font-family:var(--f-display);font-size:1.1rem;letter-spacing:.14em;text-transform:uppercase}
-.cover .cmeta .mk{width:30px;height:30px;flex:0 0 auto}
+.cover .cmeta .mk{width:24px;height:auto;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(120,80,20,.3))}
 .cover .cfoot{font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft)}
 @media(max-width:760px){.cover-grid{grid-template-columns:1fr;grid-template-rows:1.1fr .9fr}
   .cover-right{order:-1}.cover-right::before{left:0;right:0;top:auto;bottom:0;width:auto;height:50px;background:linear-gradient(0deg,var(--paper),transparent)}}
@@ -220,7 +220,7 @@ h2.ptitle{font-size:clamp(1.5rem,3.1vw,2.5rem);line-height:1.02}
   color:var(--ink-soft)}
 .topbar .tb-brand{font-family:var(--f-display);font-size:.95rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
   display:flex;align-items:center;gap:.5rem}
-.topbar .tb-brand .mk{width:20px;height:20px}
+.topbar .tb-brand .mk{width:17px;height:auto}
 .tb-right{display:flex;align-items:center;gap:.5rem}
 .tb-btn{font-family:var(--f-body);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
   background:transparent;border:1px solid var(--line);border-radius:30px;padding:.45em .9em;cursor:pointer;transition:.2s}
@@ -301,7 +301,7 @@ body.editing [data-k]:focus{outline:2px solid var(--clay);background:color-mix(i
 
   <!-- ===== viewer chrome ===== -->
   <div class="topbar">
-    <div class="tb-brand"><svg class="mk" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L28 28 H22 L16 15 L10 28 H4 Z" fill="none" stroke="var(--clay)" stroke-width="1.8"/><circle cx="16" cy="20" r="2.2" fill="var(--gold)"/></svg><span data-k="firm.name">Manstone Interiors</span></div>
+    <div class="tb-brand"><svg class="mk" viewBox="0 0 130 160" aria-hidden="true"><defs><linearGradient id="lgA" x1="0" y1="0" x2="0.45" y2="1"><stop offset="0" stop-color="#EBD08C"/><stop offset=".5" stop-color="#C6A157"/><stop offset="1" stop-color="#9A7430"/></linearGradient></defs><g fill="url(#lgA)" stroke="#86662c" stroke-width="2" stroke-linejoin="round"><polygon points="10,150 34,150 50.6,46 26.6,46"/><polygon points="44,145 72,145 88.5,42 78.9,14 60.5,42"/><polygon points="84,120 106,120 118.8,40 96.8,40"/></g></svg><span data-k="firm.name">Manstone Interiors</span></div>
     <div class="tb-right">
       <span class="tb-badge eyebrow" style="color:var(--ink-soft)"><span data-k="brand.doc">Company Profile</span></span>
       <button class="tb-btn" id="fs-btn">Full screen</button>
@@ -316,7 +316,7 @@ body.editing [data-k]:focus{outline:2px solid var(--clay);background:color-mix(i
       <article class="page cover is-active" data-title="Cover">
         <div class="cover-grid">
           <div class="cover-left">
-            <div class="cmeta"><svg class="mk" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L28 28 H22 L16 15 L10 28 H4 Z" fill="none" stroke="var(--clay)" stroke-width="1.8"/><circle cx="16" cy="20" r="2.2" fill="var(--gold)"/></svg><span data-k="cov.firm">Manstone Interiors</span></div>
+            <div class="cmeta"><svg class="mk" viewBox="0 0 130 160" aria-hidden="true"><defs><linearGradient id="lgB" x1="0" y1="0" x2="0.45" y2="1"><stop offset="0" stop-color="#EBD08C"/><stop offset=".5" stop-color="#C6A157"/><stop offset="1" stop-color="#9A7430"/></linearGradient></defs><g fill="url(#lgB)" stroke="#86662c" stroke-width="2" stroke-linejoin="round"><polygon points="10,150 34,150 50.6,46 26.6,46"/><polygon points="44,145 72,145 88.5,42 78.9,14 60.5,42"/><polygon points="84,120 106,120 118.8,40 96.8,40"/></g></svg><span data-k="cov.firm">Manstone Interiors</span></div>
             <div>
               <span class="eyebrow" data-k="cov.eyebrow">Interior Architecture · Turnkey Fit-Out · Joinery</span>
               <h1 style="margin-top:1rem"><span data-k="cov.l1">If You Can Dream It</span><span class="l2" data-k="cov.l2">We Can Build It</span></h1>
@@ -334,7 +334,7 @@ body.editing [data-k]:focus{outline:2px solid var(--clay);background:color-mix(i
       <!-- ===== PAGE 2 — THE STUDIO ===== -->
       <article class="page" data-title="The Studio">
         <div class="sheet">
-          <div class="phead"><span class="eyebrow" data-k="ab.eyebrow">The Studio</span><span class="pfolio">About Aurelia</span></div>
+          <div class="phead"><span class="eyebrow" data-k="ab.eyebrow">The Studio</span><span class="pfolio">About Manstone Interiors</span></div>
           <div class="pbody">
             <div class="split">
               <div class="stack">
@@ -505,7 +505,6 @@ body.editing [data-k]:focus{outline:2px solid var(--clay);background:color-mix(i
               <span class="eyebrow" style="color:var(--gold-lift)" data-k="ct.eyebrow">Start a project</span>
               <h2 style="margin-top:.9rem" data-k="ct.h">If you can dream it, let’s build it.</h2>
               <p data-k="ct.p">Tell us about your space and timeline. The first consultation is free — from there you’ll have one team and one point of contact, all the way to handover.</p>
-              <div class="cmcta"><a href="#" class="btn" data-k="ct.btn">Request a consultation</a></div>
             </div>
             <div class="cs">
               <div class="row"><div class="lab">Studio</div><div class="val"><span data-k="ct.addr">116, Kazi Nazrul Islam Avenue, Eskaton Road, Dhaka-1000</span></div></div>
