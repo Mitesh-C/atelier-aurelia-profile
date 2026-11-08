@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Atelier Aurelia</title>
+<style id="main-style">
+/* ============================================================
+   ATELIER AURELIA — Company Profile (digital brochure)
+   A paged, page-turning brochure: fixed page frames floating on a
+   warm plaster backdrop, turned with a 3D flip. Editorial warm
+   palette, serif display + Poppins, reeded-gold 3D cover motif.
+   ============================================================ */
+:root{
+  --plaster:#EFE6D8;      /* backdrop */
+  --paper:#FBF6EE;        /* page stock */
+  --paper-2:#F3EADC;      /* panel */
+  --sand:#E7DAC6;
+  --ink:#2A2019;
+  --ink-soft:#6C5D4E;
+  --clay:#AE4F2B;
+  --clay-deep:#853A1C;
+  --gold:#A9823F;
+  --gold-lift:#C6A157;
+  --line:rgba(42,32,25,.16);
+  --line-soft:rgba(42,32,25,.09);
+  --page-shadow:0 2px 2px rgba(60,38,20,.06),40px 55px 90px -50px rgba(60,38,20,.55),0 1px 0 rgba(255,255,255,.6) inset;
+  color-scheme:light;
+  --f-display:"Fraunces","Hoefler Text",Georgia,serif;
+  --f-body:"Poppins","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --plaster:#120E0B; --paper:#201913; --paper-2:#281F18; --sand:#2C2218;
+  --ink:#F2E9DB; --ink-soft:#B6A48E;
+  --clay:#D4703F; --clay-deep:#B5572A; --gold:#C7A35C; --gold-lift:#E2C47E;
+  --line:rgba(242,233,219,.16); --line-soft:rgba(242,233,219,.08);
+  --page-shadow:0 2px 2px rgba(0,0,0,.3),40px 55px 100px -46px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.05) inset;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --plaster:#120E0B; --paper:#201913; --paper-2:#281F18; --sand:#2C2218;
+  --ink:#F2E9DB; --ink-soft:#B6A48E;
+  --clay:#D4703F; --clay-deep:#B5572A; --gold:#C7A35C; --gold-lift:#E2C47E;
+  --line:rgba(242,233,219,.16); --line-soft:rgba(242,233,219,.08);
+  --page-shadow:0 2px 2px rgba(0,0,0,.3),40px 55px 100px -46px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.05) inset;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--plaster);color:var(--ink);font-family:var(--f-body);font-weight:300;
+  -webkit-font-smoothing:antialiased;letter-spacing:.01em;overflow:hidden;
+  background-image:
+    radial-gradient(1100px 700px at 84% -10%, rgba(169,130,63,.16), transparent 60%),
+    radial-gradient(900px 600px at -8% 110%, rgba(174,79,43,.10), transparent 55%);}
+h1,h2,h3,h4,h5{font-family:var(--f-display);font-weight:400;line-height:1.04;margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+a{color:inherit}
+.serif-i{font-family:var(--f-display);font-style:italic}
+.eyebrow{font-family:var(--f-body);font-weight:500;font-size:.64rem;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--clay);display:inline-flex;align-items:center;gap:.7em}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--gold)}
+
+/* backdrop grain */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>");}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .grain{mix-blend-mode:screen;opacity:.05}}
+:root[data-theme="dark"] .grain{mix-blend-mode:screen;opacity:.05}
+
+/* ---------- Stage ---------- */
+.stage{position:relative;z-index:1;min-height:100%;display:flex;align-items:center;justify-content:center;
+  perspective:2600px;
+  padding:54px clamp(18px,4vw,48px) 74px;
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));}
+
+/* ---------- Book + pages ---------- */
+/* Size the sheet in pure CSS so it fills the viewport reliably (no JS dependency):
+   width = smallest of 1240px, 95vw, and the width that keeps the 16:10 sheet inside the height. */
+.book{position:relative;transform-style:preserve-3d;
+  width:min(1240px, 95vw, calc((100svh - 150px) * 1.6));
+  aspect-ratio:16/10;}
+.page{position:absolute;inset:0;background:var(--paper);border-radius:4px;overflow:hidden;
+  box-shadow:var(--page-shadow);transform-origin:left center;backface-visibility:hidden;
+  opacity:0;pointer-events:none;transition:transform .72s cubic-bezier(.33,.66,.25,1),opacity .4s ease;}
+.page.is-active{opacity:1;pointer-events:auto;z-index:2;transform:rotateY(0)}
+.page.beneath{opacity:1;z-index:1;transform:rotateY(0)}
+.page::after{content:"";position:absolute;top:0;left:0;bottom:0;width:34px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(42,32,25,.11),transparent);} /* spine shadow */
+.sheet{position:absolute;inset:0;display:flex;flex-direction:column;
+  padding:clamp(20px,3.4vw,42px) clamp(22px,3.8vw,52px);}
+.phead{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  border-bottom:1px solid var(--line-soft);padding-bottom:.8rem;margin-bottom:clamp(.8rem,2vw,1.5rem);flex:0 0 auto}
+.phead .pfolio{font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-soft)}
+.pbody{flex:1 1 auto;min-height:0;overflow:auto}
+.pbody::-webkit-scrollbar{width:7px}.pbody::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+.pfoot{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  border-top:1px solid var(--line-soft);padding-top:.7rem;margin-top:clamp(.7rem,1.6vw,1.2rem);
+  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.pfoot .brand-mini{font-family:var(--f-display);letter-spacing:.14em}
+
+h2.ptitle{font-size:clamp(1.5rem,3.1vw,2.5rem);line-height:1.02}
+.lede{font-size:clamp(.9rem,1.25vw,1.08rem);color:var(--ink-soft);line-height:1.6;max-width:62ch}
+
+/* ---------- Cover ---------- */
+.page.cover{background:
+   linear-gradient(135deg,var(--paper),var(--paper-2));}
+.cover .sheet{padding:0}
+.cover-grid{position:absolute;inset:0;display:grid;grid-template-columns:1.15fr .85fr}
+.cover-left{padding:clamp(28px,4vw,58px);display:flex;flex-direction:column;justify-content:space-between;z-index:3}
+.cover-right{position:relative;overflow:hidden}
+#cover-canvas{position:absolute;inset:0}
+#cover-canvas canvas{display:block;width:100%!important;height:100%!important}
+.cover-glow{position:absolute;inset:0;background:radial-gradient(60% 60% at 60% 45%,rgba(198,161,87,.4),transparent 65%)}
+.cover-right::before{content:"";position:absolute;left:0;top:0;bottom:0;width:60px;z-index:2;
+  background:linear-gradient(90deg,var(--paper),transparent)}
+.cover h1{font-size:clamp(2.1rem,5.6vw,4.4rem);line-height:.98;letter-spacing:-.02em}
+.cover h1 .l2{display:block;font-style:italic;color:var(--clay)}
+.cover .ctag{margin-top:1.1rem;max-width:34ch;color:var(--ink-soft);font-size:clamp(.85rem,1.15vw,1rem);line-height:1.6}
+.cover .cmeta{display:flex;align-items:center;gap:.7rem;font-family:var(--f-display);font-size:1.1rem;letter-spacing:.14em;text-transform:uppercase}
+.cover .cmeta .mk{width:30px;height:30px;flex:0 0 auto}
+.cover .cfoot{font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft)}
+@media(max-width:760px){.cover-grid{grid-template-columns:1fr;grid-template-rows:1.1fr .9fr}
+  .cover-right{order:-1}.cover-right::before{left:0;right:0;top:auto;bottom:0;width:auto;height:50px;background:linear-gradient(0deg,var(--paper),transparent)}}
+
+/* ---------- Content building blocks ---------- */
+.split{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(1rem,2.6vw,2.4rem);height:100%}
+.split .fig{position:relative;border-radius:3px;overflow:hidden;box-shadow:0 20px 40px -28px rgba(60,38,20,.5)}
+.split .fig img{width:100%;height:100%;object-fit:cover;display:block}
+.split .fig .cap{position:absolute;left:0;right:0;bottom:0;padding:.8rem 1rem;font-size:.66rem;letter-spacing:.05em;
+  color:#f6ede0;background:linear-gradient(transparent,rgba(20,12,6,.72))}
+.stack{display:flex;flex-direction:column;gap:.85rem;justify-content:center}
+.stack p{font-size:clamp(.82rem,1.05vw,.96rem);color:var(--ink-soft);line-height:1.62}
+.quote{border-left:2px solid var(--gold);padding-left:1rem;margin-top:.4rem}
+.quote .q{font-family:var(--f-display);font-style:italic;font-size:clamp(1rem,1.7vw,1.35rem);line-height:1.3;color:var(--ink)}
+@media(max-width:760px){.split{grid-template-columns:1fr}.split .fig{min-height:200px}}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-soft);
+  border:1px solid var(--line-soft);border-radius:3px;overflow:hidden;margin-top:1rem}
+.stat{background:var(--paper);padding:.9rem .6rem;text-align:center}
+.stat .n{font-family:var(--f-display);font-size:clamp(1.5rem,3.4vw,2.4rem);line-height:1;color:var(--clay);font-variant-numeric:tabular-nums}
+.stat .k{font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:.4rem}
+
+.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;height:100%}
+.pill{background:var(--paper-2);border:1px solid var(--line-soft);border-radius:3px;padding:.95rem 1rem;display:flex;flex-direction:column;gap:.25rem}
+.pill .pn{font-family:var(--f-display);color:var(--gold);font-size:.95rem}
+.pill h4{font-size:clamp(.92rem,1.3vw,1.1rem)}
+.pill p{font-size:.72rem;color:var(--ink-soft);line-height:1.45;margin-top:.1rem}
+@media(max-width:760px){.grid6{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.grid6{grid-template-columns:1fr}}
+
+.svc4{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;height:100%}
+.svc{background:var(--paper-2);border:1px solid var(--line-soft);border-radius:3px;padding:1rem 1rem 1.1rem;position:relative;overflow:hidden}
+.svc::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,var(--clay),var(--gold))}
+.svc h3{font-size:clamp(1rem,1.5vw,1.25rem);margin-bottom:.1rem}
+.svc .ss{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);margin-bottom:.6rem}
+.svc ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.32rem}
+.svc li{font-size:.72rem;color:var(--ink-soft);padding-left:.85rem;position:relative;line-height:1.35}
+.svc li::before{content:"";position:absolute;left:0;top:.5em;width:4px;height:4px;background:var(--gold);transform:rotate(45deg)}
+@media(max-width:860px){.svc4{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.svc4{grid-template-columns:1fr}}
+
+.why4{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);
+  border-radius:3px;overflow:hidden;height:100%}
+.why{background:var(--paper);padding:clamp(1rem,2vw,1.7rem);display:flex;gap:1rem;align-items:flex-start}
+.why .wn{font-family:var(--f-display);font-size:1.9rem;line-height:1;color:var(--gold);flex:0 0 auto;font-variant-numeric:tabular-nums}
+.why h4{font-size:clamp(1rem,1.5vw,1.2rem);margin-bottom:.35rem}
+.why p{font-size:.76rem;color:var(--ink-soft);line-height:1.5}
+@media(max-width:600px){.why4{grid-template-columns:1fr}}
+
+.sol4{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;height:100%}
+.sol{display:grid;grid-template-columns:96px 1fr;gap:.9rem;background:var(--paper-2);border:1px solid var(--line-soft);
+  border-radius:3px;overflow:hidden;align-items:stretch}
+.sol .t{overflow:hidden}
+.sol .t img{width:100%;height:100%;object-fit:cover;display:block;min-height:100%}
+.sol .c{padding:.85rem .9rem .9rem 0}
+.sol .idx{font-family:var(--f-display);color:var(--gold);font-size:.72rem;letter-spacing:.08em}
+.sol h3{font-size:clamp(.95rem,1.4vw,1.18rem);margin:.15rem 0 .35rem}
+.sol p{font-size:.7rem;color:var(--ink-soft);line-height:1.45}
+@media(max-width:620px){.sol4{grid-template-columns:1fr}}
+
+.work{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;height:100%}
+.wcard{position:relative;border-radius:3px;overflow:hidden;background:var(--paper-2);display:flex;flex-direction:column}
+.wcard .wph{position:relative;overflow:hidden;flex:1 1 auto;min-height:0}
+.wcard .wph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s ease}
+.wcard:hover .wph img{transform:scale(1.06)}
+.wcard .wm{padding:.6rem .7rem .7rem}
+.wcard .wm .k{font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--clay)}
+.wcard .wm h4{font-size:clamp(.82rem,1.1vw,.98rem);margin-top:.15rem}
+@media(max-width:760px){.work{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.work{grid-template-columns:1fr}}
+
+.mat{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(1rem,2.6vw,2.2rem);height:100%}
+.mat .fig{border-radius:3px;overflow:hidden;box-shadow:0 20px 40px -28px rgba(60,38,20,.5)}
+.mat .fig img{width:100%;height:100%;object-fit:cover;display:block}
+.mat .body{display:flex;flex-direction:column;gap:.7rem;justify-content:center}
+.swatches{display:flex;gap:.9rem;margin-top:.7rem;flex-wrap:wrap}
+.sw{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);position:relative}
+.sw span{position:absolute;top:48px;left:50%;transform:translateX(-50%);font-size:.52rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+.sectors{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem}
+.sector{font-family:var(--f-display);font-size:clamp(.85rem,1.2vw,1.05rem);border:1px solid var(--line);border-radius:30px;padding:.3em .9em;background:var(--paper)}
+.sector .d{color:var(--gold);margin-right:.4em}
+@media(max-width:700px){.mat{grid-template-columns:1fr}.mat .fig{min-height:200px}}
+
+.team{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem 1rem;height:100%;align-content:start}
+.member{display:flex;gap:.65rem;align-items:center;padding:.5rem 0;border-top:1px solid var(--line-soft)}
+.member .av{width:38px;height:38px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-display);font-size:.9rem;color:#fff;background:linear-gradient(135deg,var(--gold-lift),var(--clay))}
+.member h5{font-size:clamp(.78rem,1.05vw,.92rem);font-weight:400}
+.member p{font-size:.58rem;color:var(--ink-soft);letter-spacing:.02em;margin-top:.1rem}
+@media(max-width:820px){.team{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.team{grid-template-columns:1fr 1fr}}
+
+/* contact / back cover */
+.contact{display:grid;grid-template-columns:1.05fr .95fr;gap:0;height:100%;border-radius:3px;overflow:hidden}
+.contact .cm{background:var(--ink);color:var(--plaster);padding:clamp(1.3rem,3vw,2.4rem);display:flex;flex-direction:column;justify-content:center}
+.contact .cm h2{color:var(--plaster);font-size:clamp(1.6rem,3.4vw,2.7rem)}
+.contact .cm p{color:rgba(255,255,255,.72);margin-top:.9rem;max-width:40ch;font-size:.86rem;line-height:1.6}
+.contact .cs{background:var(--paper-2);padding:clamp(1.3rem,3vw,2.2rem);display:flex;flex-direction:column;gap:1rem;justify-content:center}
+.contact .row .lab{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.contact .row .val{font-size:.9rem;margin-top:.2rem;word-break:break-word}
+.copybtn{margin-left:.4rem;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);
+  background:transparent;color:inherit;border-radius:20px;padding:.2em .6em;cursor:pointer;vertical-align:middle}
+.cmcta{margin-top:1.3rem}
+.btn{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;padding:.8em 1.5em;border-radius:40px;
+  text-decoration:none;cursor:pointer;display:inline-block;background:var(--clay);color:#fdf6ee;border:1px solid var(--clay);transition:.2s}
+.btn:hover{background:var(--clay-deep)}
+@media(max-width:700px){.contact{grid-template-columns:1fr}}
+
+/* ---------- Viewer chrome ---------- */
+.topbar{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:20;display:flex;align-items:center;
+  justify-content:space-between;gap:1rem;height:46px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  color:var(--ink-soft)}
+.topbar .tb-brand{font-family:var(--f-display);font-size:.95rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
+  display:flex;align-items:center;gap:.5rem}
+.topbar .tb-brand .mk{width:20px;height:20px}
+.tb-right{display:flex;align-items:center;gap:.5rem}
+.tb-btn{font-family:var(--f-body);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+  background:transparent;border:1px solid var(--line);border-radius:30px;padding:.45em .9em;cursor:pointer;transition:.2s}
+.tb-btn:hover{color:var(--ink);border-color:var(--ink)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--plaster)}
+
+.nav-arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:20;width:48px;height:48px;border-radius:50%;
+  background:var(--paper);border:1px solid var(--line);color:var(--ink);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;box-shadow:0 14px 30px -18px rgba(60,38,20,.6);transition:transform .2s,background .2s;font-size:1.1rem}
+.nav-arrow:hover{background:var(--ink);color:var(--paper);transform:translateY(-50%) scale(1.06)}
+.nav-arrow[disabled]{opacity:.3;pointer-events:none}
+.nav-prev{left:max(10px,env(safe-area-inset-left,0px))}
+.nav-next{right:max(10px,env(safe-area-inset-right,0px))}
+
+.pager{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:20;
+  display:flex;align-items:center;gap:.8rem;background:var(--paper);border:1px solid var(--line);border-radius:40px;
+  padding:.4rem .5rem .4rem 1rem;box-shadow:0 14px 30px -18px rgba(60,38,20,.6)}
+.pager .count{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dots{display:flex;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s;border:none;padding:0}
+.dot.on{background:var(--clay);transform:scale(1.3)}
+@media(max-width:560px){.dots{display:none}.nav-arrow{width:40px;height:40px}}
+
+/* contents overlay */
+.toc{position:fixed;inset:0;z-index:40;background:color-mix(in srgb,var(--plaster) 92%,transparent);
+  backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;
+  padding:max(20px,env(safe-area-inset-top,0px)) 20px}
+.toc.open{display:flex}
+.toc-inner{max-width:720px;width:100%}
+.toc h3{font-size:1.4rem;margin-bottom:1.2rem}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.toc li button{width:100%;text-align:left;background:var(--paper);border:1px solid var(--line-soft);border-radius:3px;
+  padding:.7rem .9rem;cursor:pointer;display:flex;gap:.7rem;align-items:baseline;font-family:var(--f-body);color:var(--ink);transition:.2s}
+.toc li button:hover{border-color:var(--clay);background:var(--paper-2)}
+.toc li .tn{font-family:var(--f-display);color:var(--gold);font-size:.8rem;min-width:1.6em}
+.toc li .tt{font-size:.85rem}
+.toc-close{margin-top:1.2rem}
+@media(max-width:560px){.toc ol{grid-template-columns:1fr}}
+
+/* editor */
+.editbar{position:fixed;z-index:50;right:max(12px,env(safe-area-inset-right,0px));
+  bottom:calc(66px + env(safe-area-inset-bottom,0px));display:flex;gap:.4rem;align-items:center}
+.editbar button{font-family:var(--f-body);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink);
+  background:var(--paper);color:var(--ink);border-radius:40px;padding:.6em 1em;cursor:pointer;
+  box-shadow:0 14px 30px -18px rgba(60,38,20,.6);transition:.2s}
+.editbar button:hover{background:var(--ink);color:var(--paper)}
+.editbar .primary{background:var(--clay);color:#fdf6ee;border-color:var(--clay)}
+.editbar .primary:hover{background:var(--clay-deep)}
+.editbar .hide{display:none}
+body.editing [data-k]{outline:1px dashed var(--clay);outline-offset:2px;border-radius:2px;cursor:text}
+body.editing [data-k]:focus{outline:2px solid var(--clay);background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.toast{position:fixed;z-index:60;left:50%;transform:translateX(-50%) translateY(16px);
+  bottom:calc(120px + env(safe-area-inset-bottom,0px));background:var(--clay);color:#fdf6ee;font-size:.78rem;
+  padding:.6em 1.2em;border-radius:40px;box-shadow:0 14px 30px -18px rgba(60,38,20,.6);opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){ .page{transition:opacity .3s ease} }
+
+/* phone: pages reflow (no 3D flip), stage scrolls */
+@media(max-width:760px){
+  body{overflow:auto}
+  .stage{align-items:flex-start;min-height:100%;padding-top:58px;padding-bottom:84px}
+  .book{width:100%!important;height:auto!important;aspect-ratio:auto!important;transform:none!important}
+  .page{position:relative;inset:auto;display:none;opacity:1;transform:none!important;box-shadow:var(--page-shadow)}
+  .page.is-active{display:block}
+  .page::after{display:none}
+  .sheet{position:relative;inset:auto}
+  .cover-grid{position:relative}
+  .pbody{overflow:visible}
+  #cover-canvas{min-height:230px}
+}
+</style>
+
+<div class="grain" aria-hidden="true"></div>
+
+<div id="page">
+
+  <!-- ===== viewer chrome ===== -->
+  <div class="topbar">
+    <div class="tb-brand"><svg class="mk" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L28 28 H22 L16 15 L10 28 H4 Z" fill="none" stroke="var(--clay)" stroke-width="1.8"/><circle cx="16" cy="20" r="2.2" fill="var(--gold)"/></svg><span data-k="brand.name">Atelier Aurelia</span></div>
+    <div class="tb-right">
+      <span class="tb-badge eyebrow" style="color:var(--ink-soft)"><span data-k="brand.doc">Company Profile</span></span>
+      <button class="tb-btn" id="fs-btn">Full screen</button>
+      <button class="tb-btn" id="toc-open">Contents</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="book" id="book">
+
+      <!-- ===== PAGE 1 — COVER ===== -->
+      <article class="page cover is-active" data-title="Cover">
+        <div class="cover-grid">
+          <div class="cover-left">
+            <div class="cmeta"><svg class="mk" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L28 28 H22 L16 15 L10 28 H4 Z" fill="none" stroke="var(--clay)" stroke-width="1.8"/><circle cx="16" cy="20" r="2.2" fill="var(--gold)"/></svg><span data-k="cov.brand">Atelier Aurelia</span></div>
+            <div>
+              <span class="eyebrow" data-k="cov.eyebrow">Interior Architecture · Turnkey Fit-Out · Joinery</span>
+              <h1 style="margin-top:1rem"><span data-k="cov.l1">If You Can Dream It</span><span class="l2" data-k="cov.l2">We Can Build It</span></h1>
+              <p class="ctag" data-k="cov.tag">Premium, considered, genuinely hassle-free interiors — from first sketch and 3D visual to the final styled room. One studio, one point of contact, every discipline under one roof.</p>
+            </div>
+            <div class="cfoot"><span data-k="cov.foot">Company Profile — Edition 2025</span></div>
+          </div>
+          <div class="cover-right">
+            <div id="cover-canvas" aria-hidden="true"></div>
+            <div class="cover-glow" aria-hidden="true"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 2 — THE STUDIO ===== -->
+      <article class="page" data-title="The Studio">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="ab.eyebrow">The Studio</span><span class="pfolio">About Aurelia</span></div>
+          <div class="pbody">
+            <div class="split">
+              <div class="stack">
+                <h2 class="ptitle" data-k="ab.h">Exceptional design, made to feel effortless.</h2>
+                <p data-k="ab.p1">Atelier Aurelia transforms residential and commercial spaces into modern, functional, and quietly luxurious environments. From private homes to flagship interiors, we blend creativity, quality craftsmanship, and advanced technology into tailored solutions that reflect how you actually live and work.</p>
+                <p data-k="ab.p2">Transparency, timely delivery, and client satisfaction are our standard — not an upsell. Whether you want a complete makeover, custom joinery, or intelligent space planning, we are the trusted partner behind spaces you’ll love.</p>
+                <div class="quote"><p class="q" data-k="ab.quote">“We design more than spaces — we craft experiences that blend aesthetics, functionality, and comfort to elevate everyday living.”</p></div>
+              </div>
+              <figure class="fig" style="margin:0"><img src="assets/hero-living.jpg" alt="Warm light-filled living room with timber joinery" loading="lazy"><figcaption class="cap" data-k="ab.cap">Private residence — layered light, warm timber, a calm palette</figcaption></figure>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini" data-k="foot.b">Atelier Aurelia</span><span>02 — The Studio</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 3 — APPROACH ===== -->
+      <article class="page" data-title="Our Approach">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="ap.eyebrow">Why clients stay</span><span class="pfolio">Our Approach</span></div>
+          <div class="pbody" style="display:flex;flex-direction:column;gap:1rem">
+            <h2 class="ptitle" data-k="ap.h">A calmer way to run a project.</h2>
+            <div class="grid6">
+              <div class="pill"><span class="pn">01</span><h4 data-k="ap.1h">Free Consultation</h4><p data-k="ap.1p">We start by listening — your needs, site and budget — before a line is drawn.</p></div>
+              <div class="pill"><span class="pn">02</span><h4 data-k="ap.2h">Quick Deals</h4><p data-k="ap.2p">Clear scope and fast, honest quotes, so decisions never stall your timeline.</p></div>
+              <div class="pill"><span class="pn">03</span><h4 data-k="ap.3h">Affordable Pricing</h4><p data-k="ap.3p">Premium outcomes without the premium-for-its-own-sake markup.</p></div>
+              <div class="pill"><span class="pn">04</span><h4 data-k="ap.4h">Hassle-Free Service</h4><p data-k="ap.4p">One team runs design, build and finishing — you keep in touch with us alone.</p></div>
+              <div class="pill"><span class="pn">05</span><h4 data-k="ap.5h">24 · 7 Support</h4><p data-k="ap.5p">Engineers and project managers on call through every phase.</p></div>
+              <div class="pill"><span class="pn">06</span><h4 data-k="ap.6h">Satisfaction Guaranteed</h4><p data-k="ap.6p">On time, on budget, to a standard that stays fresh for years.</p></div>
+            </div>
+            <div class="stats">
+              <div class="stat"><div class="n" data-count="20" data-k="s1n">20</div><div class="k" data-k="s1k">In-house specialists</div></div>
+              <div class="stat"><div class="n" data-count="9" data-k="s2n">9</div><div class="k" data-k="s2k">Sectors we design</div></div>
+              <div class="stat"><div class="n" data-count="4" data-k="s3n">4</div><div class="k" data-k="s3k">Turnkey disciplines</div></div>
+              <div class="stat"><div class="n" data-k="s4n">24/7</div><div class="k" data-k="s4k">MEP support</div></div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini" data-k="foot.b2">Atelier Aurelia</span><span>03 — Our Approach</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 4 — SERVICES ===== -->
+      <article class="page" data-title="Our Services">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="sv.eyebrow">Our Services</span><span class="pfolio">What we do</span></div>
+          <div class="pbody" style="display:flex;flex-direction:column;gap:1rem">
+            <h2 class="ptitle" data-k="sv.h">Four disciplines, one seamless process.</h2>
+            <div class="svc4">
+              <div class="svc"><h3 data-k="sv.1h">Project Analysis</h3><div class="ss" data-k="sv.1s">Plan &amp; scope</div><ul><li data-k="sv.1a">Design concept</li><li data-k="sv.1b">Design development</li><li data-k="sv.1c">3D visuals</li><li data-k="sv.1d">Bidding</li><li data-k="sv.1e">Outline scope</li><li data-k="sv.1f">Implementation</li><li data-k="sv.1g">Schedule of works</li></ul></div>
+              <div class="svc"><h3 data-k="sv.2h">Interior Design</h3><div class="ss" data-k="sv.2s">Every space type</div><ul><li data-k="sv.2a">Home &amp; apartment</li><li data-k="sv.2b">Office &amp; workspace</li><li data-k="sv.2c">Restaurant &amp; café</li><li data-k="sv.2d">Hotel &amp; resort</li><li data-k="sv.2e">Hospital &amp; clinic</li><li data-k="sv.2f">Showroom &amp; retail</li><li data-k="sv.2g">Auditorium</li></ul></div>
+              <div class="svc"><h3 data-k="sv.3h">Exterior Design</h3><div class="ss" data-k="sv.3s">Façade &amp; form</div><ul><li data-k="sv.3a">Residential exterior</li><li data-k="sv.3b">Commercial exterior</li><li data-k="sv.3c">Hotel &amp; hospitality</li><li data-k="sv.3d">Mall &amp; retail</li><li data-k="sv.3e">Hospital exterior</li><li data-k="sv.3f">Penthouse &amp; bungalow</li><li data-k="sv.3g">Building envelope</li></ul></div>
+              <div class="svc"><h3 data-k="sv.4h">Custom Furniture</h3><div class="ss" data-k="sv.4s">Made for your space</div><ul><li data-k="sv.4a">Custom sofa &amp; bed</li><li data-k="sv.4b">Chairs &amp; tables</li><li data-k="sv.4c">Kitchens &amp; cabinets</li><li data-k="sv.4d">Reception joinery</li><li data-k="sv.4e">Doors &amp; panels</li><li data-k="sv.4f">Workstations</li><li data-k="sv.4g">Storage &amp; wardrobes</li></ul></div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>04 — Our Services</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 5 — WHY US ===== -->
+      <article class="page" data-title="Why Us">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="wh.eyebrow">Why use our design service</span><span class="pfolio">The difference</span></div>
+          <div class="pbody" style="display:flex;flex-direction:column;gap:1rem">
+            <h2 class="ptitle" data-k="wh.h">The advantage of a single, accountable team.</h2>
+            <div class="why4">
+              <div class="why"><div class="wn">01</div><div><h4 data-k="wh.1h">Reliable Sourcing</h4><p data-k="wh.1p">Our purchase team plans and tracks materials, liaising with quality vendors to bring you top-grade finishes.</p></div></div>
+              <div class="why"><div class="wn">02</div><div><h4 data-k="wh.2h">Turnkey + Project Management</h4><p data-k="wh.2p">Architects and designers sit on one team, so planning and build stay consistent with the agreed concept.</p></div></div>
+              <div class="why"><div class="wn">03</div><div><h4 data-k="wh.3h">Single Point of Contact</h4><p data-k="wh.3p">No chasing designers, decorators, architects and vendors. We coordinate it all — you keep in touch with us.</p></div></div>
+              <div class="why"><div class="wn">04</div><div><h4 data-k="wh.4h">On Time · On Budget</h4><p data-k="wh.4p">We deliver as agreed, to the best quality, with interiors that stay fresh for a long time.</p></div></div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>05 — Why Us</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 6 — SOLUTIONS ===== -->
+      <article class="page" data-title="Solutions">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="so.eyebrow">Comprehensive Interior Solutions</span><span class="pfolio">End to end</span></div>
+          <div class="pbody" style="display:flex;flex-direction:column;gap:1rem">
+            <h2 class="ptitle" data-k="so.h">One studio for the whole build.</h2>
+            <div class="sol4">
+              <div class="sol"><div class="t"><img src="assets/foyer-brass.jpg" alt="Interior design detail" loading="lazy"></div><div class="c"><div class="idx">01 — Design</div><h3 data-k="so.1h">Design &amp; Space Planning</h3><p data-k="so.1p">We remodel your space around your exact requirements, studying the complexities of your industry and shaping a solution admired by all.</p></div></div>
+              <div class="sol"><div class="t"><img src="assets/lobby-marble.jpg" alt="Fit-out lobby" loading="lazy"></div><div class="c"><div class="idx">02 — Build</div><h3 data-k="so.2h">Turnkey Fit-Out</h3><p data-k="so.2p">Excellence across ceilings, partitions, flooring and finishes — one accountable destination for every fit-out need.</p></div></div>
+              <div class="sol"><div class="t"><img src="assets/craft-bw.jpg" alt="Joinery craft" loading="lazy"></div><div class="c"><div class="idx">03 — Craft</div><h3 data-k="so.3h">Bespoke Joinery</h3><p data-k="so.3p">Fine handcrafted joinery with timeless technique — artistic pieces that are functional, durable and beautifully made.</p></div></div>
+              <div class="sol"><div class="t"><img src="assets/office-open.jpg" alt="MEP serviced office" loading="lazy"></div><div class="c"><div class="idx">04 — Systems</div><h3 data-k="so.4h">MEP Services</h3><p data-k="so.4p">24/7 Mechanical, Electrical and Plumbing — install, retrofit and maintain, every space optimised for performance.</p></div></div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>06 — Solutions</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 7 — SELECTED WORK I ===== -->
+      <article class="page" data-title="Selected Work I">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="w1.eyebrow">Selected Work — Residential &amp; Living</span><span class="pfolio">Portfolio I</span></div>
+          <div class="pbody">
+            <div class="work">
+              <div class="wcard"><div class="wph"><img src="assets/luxury-bedroom.jpg" alt="Luxury bedroom" loading="lazy"></div><div class="wm"><div class="k" data-k="w1.1k">Luxury Residence</div><h4 data-k="w1.1h">Gilded Calm</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/foyer-brass.jpg" alt="Contemporary foyer" loading="lazy"></div><div class="wm"><div class="k" data-k="w1.2k">Modern Contemporary</div><h4 data-k="w1.2h">Brass &amp; Stone</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/living-grand.jpg" alt="Double-height living" loading="lazy"></div><div class="wm"><div class="k" data-k="w1.3k">Grand Living</div><h4 data-k="w1.3h">Double Height</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/penthouse-stair.jpg" alt="Penthouse staircase" loading="lazy"></div><div class="wm"><div class="k" data-k="w1.4k">Penthouse</div><h4 data-k="w1.4h">The Spiral</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/hero-living.jpg" alt="Warm living room" loading="lazy"></div><div class="wm"><div class="k" data-k="w1.5k">Luxury Living</div><h4 data-k="w1.5h">Warm Minimal</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/dining-teal.jpg" alt="Dining room" loading="lazy"></div><div class="wm"><div class="k" data-k="w1.6k">Dining</div><h4 data-k="w1.6h">The Long Table</h4></div></div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>07 — Portfolio I</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 8 — SELECTED WORK II ===== -->
+      <article class="page" data-title="Selected Work II">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="w2.eyebrow">Selected Work — Commercial · Hospitality · Healthcare</span><span class="pfolio">Portfolio II</span></div>
+          <div class="pbody">
+            <div class="work">
+              <div class="wcard"><div class="wph"><img src="assets/office-open.jpg" alt="Open office" loading="lazy"></div><div class="wm"><div class="k" data-k="w2.1k">Office Interior</div><h4 data-k="w2.1h">Studio Floor</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/lobby-marble.jpg" alt="Corporate lobby" loading="lazy"></div><div class="wm"><div class="k" data-k="w2.2k">Corporate Lobby</div><h4 data-k="w2.2h">Marble &amp; Wood</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/hotel-room.jpg" alt="Hotel room" loading="lazy"></div><div class="wm"><div class="k" data-k="w2.3k">Hotel Interior</div><h4 data-k="w2.3h">The Suite Life</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/clinic-room.jpg" alt="Hospital interior" loading="lazy"></div><div class="wm"><div class="k" data-k="w2.4k">Hospital</div><h4 data-k="w2.4h">Quiet Recovery</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/reception-dental.jpg" alt="Dental reception" loading="lazy"></div><div class="wm"><div class="k" data-k="w2.5k">Dental Clinic</div><h4 data-k="w2.5h">Warm Welcome</h4></div></div>
+              <div class="wcard"><div class="wph"><img src="assets/dining-teal.jpg" alt="Restaurant" loading="lazy"></div><div class="wm"><div class="k" data-k="w2.6k">Restaurant</div><h4 data-k="w2.6h">Evening Service</h4></div></div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>08 — Portfolio II</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 9 — MATERIALS + SECTORS ===== -->
+      <article class="page" data-title="Materials">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="mt.eyebrow">Certified Materials</span><span class="pfolio">Craft &amp; sectors</span></div>
+          <div class="pbody">
+            <div class="mat">
+              <figure class="fig" style="margin:0"><img src="assets/craft-bw.jpg" alt="Hands finishing a timber piece" loading="lazy"></figure>
+              <div class="body">
+                <h2 class="ptitle" data-k="mt.h">Only certified materials — no compromises.</h2>
+                <p class="lede" data-k="mt.p">Every finish we specify is tested and certified. Our own workshop lets us control quality from raw timber to installed detail — so the piece you admire still looks right in ten years.</p>
+                <div class="swatches" aria-hidden="true">
+                  <div class="sw" style="background:#C9B79B"><span>Oak</span></div>
+                  <div class="sw" style="background:#8A5A3B"><span>Walnut</span></div>
+                  <div class="sw" style="background:#AE4F2B"><span>Clay</span></div>
+                  <div class="sw" style="background:#BFA15A"><span>Brass</span></div>
+                  <div class="sw" style="background:#E7E0D5"><span>Marble</span></div>
+                  <div class="sw" style="background:#2A2019"><span>Espresso</span></div>
+                </div>
+                <div style="margin-top:1.6rem"><span class="eyebrow" data-k="se.eyebrow">Who we design for</span>
+                  <div class="sectors">
+                    <span class="sector"><span class="d">—</span><span data-k="se.1">Residential</span></span>
+                    <span class="sector"><span class="d">—</span><span data-k="se.2">Government</span></span>
+                    <span class="sector"><span class="d">—</span><span data-k="se.3">Private Facilities</span></span>
+                    <span class="sector"><span class="d">—</span><span data-k="se.4">Commercial</span></span>
+                    <span class="sector"><span class="d">—</span><span data-k="se.5">Schools</span></span>
+                    <span class="sector"><span class="d">—</span><span data-k="se.6">Condominiums</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>09 — Materials</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 10 — TEAM ===== -->
+      <article class="page" data-title="The Team">
+        <div class="sheet">
+          <div class="phead"><span class="eyebrow" data-k="tm.eyebrow">Meet the Creative Team</span><span class="pfolio">Experienced professionals</span></div>
+          <div class="pbody">
+            <h2 class="ptitle" style="margin-bottom:1rem" data-k="tm.h">The people behind every space.</h2>
+            <div class="team" id="team-grid"></div>
+          </div>
+          <div class="pfoot"><span class="brand-mini">Atelier Aurelia</span><span>10 — The Team</span></div>
+        </div>
+      </article>
+
+      <!-- ===== PAGE 11 — CONTACT / BACK ===== -->
+      <article class="page" data-title="Contact">
+        <div class="sheet" style="padding:0">
+          <div class="contact">
+            <div class="cm">
+              <span class="eyebrow" style="color:var(--gold-lift)" data-k="ct.eyebrow">Start a project</span>
+              <h2 style="margin-top:.9rem" data-k="ct.h">If you can dream it, let’s build it.</h2>
+              <p data-k="ct.p">Tell us about your space and timeline. The first consultation is free — from there you’ll have one team and one point of contact, all the way to handover.</p>
+              <div class="cmcta"><a href="#" class="btn" data-k="ct.btn">Request a consultation</a></div>
+            </div>
+            <div class="cs">
+              <div class="row"><div class="lab">Studio</div><div class="val"><span data-k="ct.addr">116, Kazi Nazrul Islam Avenue, Eskaton Road, Dhaka-1000</span></div></div>
+              <div class="row"><div class="lab">Workshop</div><div class="val"><span data-k="ct.fac">171, Ahammed Shorony (100ft Road), Vatara, Dhaka</span></div></div>
+              <div class="row"><div class="lab">Phone</div><div class="val"><span data-k="ct.phone">01712 664168</span><button class="copybtn" data-copy="ct.phone">Copy</button></div></div>
+              <div class="row"><div class="lab">Email</div><div class="val"><span data-k="ct.email">info@imagineinteriors.design</span><button class="copybtn" data-copy="ct.email">Copy</button></div></div>
+              <div class="row"><div class="lab">Website</div><div class="val"><span data-k="ct.web">www.imagineinteriors.design</span></div></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /book -->
+  </div><!-- /stage -->
+
+  <!-- nav -->
+  <button class="nav-arrow nav-prev" id="prev" aria-label="Previous page">‹</button>
+  <button class="nav-arrow nav-next" id="next" aria-label="Next page">›</button>
+  <div class="pager"><button class="tb-btn" id="pg-prev" style="padding:.35em .7em">Prev</button><span class="count" id="count">01 / 11</span><div class="dots" id="dots"></div><button class="tb-btn" id="pg-next" style="padding:.35em .7em">Next</button></div>
+
+  <!-- contents overlay -->
+  <div class="toc" id="toc"><div class="toc-inner"><h3>Contents</h3><ol id="toc-list"></ol><button class="tb-btn toc-close" id="toc-close">Close</button></div></div>
+
+  <!-- state -->
+  <script type="application/json" id="app-state">{"team":[["Imran Hossain Akash","Architect & 3D Artist"],["Puspendu Biswas","Sr. Interior Architect"],["Farhana Islam","Sr. Architect"],["Nawal Chowdhury","Interior Architect"],["Saharear Minhaj","3D Artist"],["Monirul Quader","Asst. Manager, PM"],["Arup Ratan","Sr. Interior Designer & CRM"],["Newton Das","Architect"],["Ibrahim Kholil","Sr. Project Engineer"],["Mithun Chandra Mondol","Interior Architect"],["Shakib Muttakin","Jr. Project Coordinator"],["Murad Hossain","Project Engineer"],["Aung Than","Visual Artist"],["Sudipta Siron Karmakar","Project Engineer"],["Imamul Hossain","Project Engineer"],["Roman Bhuiyan","Costing & Billing"]]}</script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+
+  <script>
+  (function(){
+    "use strict";
+    var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion:reduce)").matches;
+    var stage=document.getElementById("stage"), book=document.getElementById("book");
+    var pages=Array.prototype.slice.call(book.querySelectorAll(".page"));
+    var N=pages.length, cur=0, busy=false;
+    function isPhone(){ return window.matchMedia("(max-width:760px)").matches; }
+    function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+    /* ---- team ---- */
+    function renderTeam(){
+      var el=document.getElementById("team-grid"); if(!el) return;
+      var data=[]; try{ data=JSON.parse(document.getElementById("app-state").textContent).team||[]; }catch(e){}
+      el.innerHTML=data.map(function(m){
+        var ini=(m[0]||"").split(/\s+/).map(function(w){return w[0]||"";}).slice(0,2).join("").toUpperCase();
+        return '<div class="member"><div class="av" aria-hidden="true">'+ini+'</div><div><h5>'+esc(m[0])+'</h5><p>'+esc(m[1])+'</p></div></div>';
+      }).join("");
+    }
+
+    /* ---- sizing is handled in CSS; keep a hook for safety ---- */
+    function fit(){ /* CSS min()/aspect-ratio sizes the sheet; nothing to do */ }
+
+    /* ---- fullscreen toggle ---- */
+    function toggleFs(){
+      var d=document, el=d.documentElement;
+      var isFs=d.fullscreenElement||d.webkitFullscreenElement;
+      try{
+        if(!isFs){ (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el); }
+        else{ (d.exitFullscreen||d.webkitExitFullscreen||function(){}).call(d); }
+      }catch(e){}
+    }
+    function syncFsLabel(){
+      var b=document.getElementById("fs-btn"); if(!b) return;
+      var isFs=document.fullscreenElement||document.webkitFullscreenElement;
+      b.textContent=isFs?"Exit full screen":"Full screen";
+    }
+
+    /* ---- page turn ---- */
+    function show(idx,dir){
+      if(idx<0||idx>=N||idx===cur) return;
+      var from=pages[cur], to=pages[idx];
+      if(reduce || isPhone()){
+        from.classList.remove("is-active"); to.classList.add("is-active");
+        cur=idx; sync(); afterShow(to,idx); return;
+      }
+      if(busy) return; busy=true;
+      dir = dir || (idx>cur?1:-1);
+      to.classList.add("beneath"); // sits under, revealed
+      // ensure 'to' positioned for entrance
+      if(dir>0){
+        // current turns away to the left
+        to.style.transform="rotateY(0deg)"; to.style.zIndex="1";
+        from.style.zIndex="3";
+        requestAnimationFrame(function(){ from.style.transform="rotateY(-116deg)"; from.style.opacity="0"; });
+      } else {
+        // incoming page swings in from the left
+        to.style.zIndex="3"; to.style.transform="rotateY(-116deg)"; to.style.opacity="1";
+        from.style.zIndex="1";
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ to.style.transform="rotateY(0deg)"; }); });
+      }
+      var done=false;
+      function end(){
+        if(done) return; done=true;
+        from.classList.remove("is-active","beneath"); from.style.transform=""; from.style.opacity=""; from.style.zIndex="";
+        to.classList.remove("beneath"); to.classList.add("is-active"); to.style.transform=""; to.style.opacity=""; to.style.zIndex="";
+        busy=false; cur=idx; sync(); afterShow(to,idx);
+      }
+      var watch = dir>0?from:to;
+      watch.addEventListener("transitionend",function h(e){ if(e.propertyName==="transform"){ watch.removeEventListener("transitionend",h); end(); } });
+      setTimeout(end,900);
+      // make sure 'to' is marked active immediately for accessibility
+      to.classList.add("is-active");
+    }
+    function afterShow(pageEl,idx){
+      if(pageEl.querySelector("[data-count]")) runCounters(pageEl);
+      var body=pageEl.querySelector(".pbody"); if(body) body.scrollTop=0;
+    }
+
+    function sync(){
+      var cc=document.getElementById("count");
+      cc.textContent=String(cur+1).padStart(2,"0")+" / "+String(N).padStart(2,"0");
+      document.getElementById("prev").disabled=cur===0;
+      document.getElementById("pg-prev").disabled=cur===0;
+      document.getElementById("next").disabled=cur===N-1;
+      document.getElementById("pg-next").disabled=cur===N-1;
+      Array.prototype.forEach.call(document.querySelectorAll("#dots .dot"),function(d,i){ d.classList.toggle("on",i===cur); });
+    }
+    function go(d){ show(cur+d,d); }
+
+    /* ---- counters ---- */
+    function runCounters(scope){
+      scope.querySelectorAll("[data-count]").forEach(function(n){
+        if(n.dataset.done) return; n.dataset.done="1";
+        var target=parseInt(n.getAttribute("data-count"),10)||0;
+        if(reduce){ n.textContent=target; return; }
+        var t0=null,dur=1200;
+        function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1); n.textContent=Math.round(target*(1-Math.pow(1-p,3))); if(p<1)requestAnimationFrame(step); }
+        requestAnimationFrame(step);
+      });
+    }
+
+    /* ---- dots + toc ---- */
+    function buildChrome(){
+      var dots=document.getElementById("dots");
+      dots.innerHTML=pages.map(function(p,i){ return '<button class="dot'+(i===0?" on":"")+'" aria-label="Page '+(i+1)+'"></button>'; }).join("");
+      Array.prototype.forEach.call(dots.children,function(d,i){ d.addEventListener("click",function(){ show(i); }); });
+      var list=document.getElementById("toc-list");
+      list.innerHTML=pages.map(function(p,i){ return '<li><button data-i="'+i+'"><span class="tn">'+String(i+1).padStart(2,"0")+'</span><span class="tt">'+esc(p.getAttribute("data-title")||("Page "+(i+1)))+'</span></button></li>'; }).join("");
+      Array.prototype.forEach.call(list.querySelectorAll("button"),function(b){ b.addEventListener("click",function(){ document.getElementById("toc").classList.remove("open"); show(parseInt(b.getAttribute("data-i"),10)); }); });
+      document.getElementById("toc-open").addEventListener("click",function(){ document.getElementById("toc").classList.add("open"); });
+      document.getElementById("toc-close").addEventListener("click",function(){ document.getElementById("toc").classList.remove("open"); });
+    }
+
+    /* ---- Three.js reeded-gold cover motif ---- */
+    function initThree(){
+      var holder=document.getElementById("cover-canvas");
+      if(!holder||typeof THREE==="undefined") return;
+      var w=holder.clientWidth||480,h=holder.clientHeight||520;
+      var scene=new THREE.Scene();
+      var cam=new THREE.PerspectiveCamera(42,w/h,0.1,100); cam.position.set(0,0,13);
+      var renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); renderer.setSize(w,h);
+      holder.appendChild(renderer.domElement);
+      var group=new THREE.Group(); scene.add(group);
+      var slats=40,radius=4.2,mat=new THREE.MeshStandardMaterial({color:0xC6A157,metalness:0.92,roughness:0.34});
+      var geo=new THREE.BoxGeometry(0.26,9,0.42);
+      for(var i=0;i<slats;i++){ var a=(i/slats)*Math.PI*2; var m=new THREE.Mesh(geo,mat);
+        m.position.set(Math.cos(a)*radius,0,Math.sin(a)*radius); m.lookAt(0,m.position.y,0); group.add(m); }
+      var ringMat=new THREE.MeshStandardMaterial({color:0xAE4F2B,metalness:0.7,roughness:0.4});
+      var ring=new THREE.Mesh(new THREE.TorusGeometry(radius+0.1,0.06,16,120),ringMat); ring.rotation.x=Math.PI/2; ring.position.y=4.5; group.add(ring);
+      var ring2=ring.clone(); ring2.position.y=-4.5; group.add(ring2);
+      scene.add(new THREE.AmbientLight(0xfff0dd,0.55));
+      var key=new THREE.PointLight(0xffd9a0,1.5,60); key.position.set(10,8,14); scene.add(key);
+      var warm=new THREE.PointLight(0xC85A2C,1.1,60); warm.position.set(-12,-4,6); scene.add(warm);
+      var rim=new THREE.DirectionalLight(0xffffff,0.5); rim.position.set(-6,10,-8); scene.add(rim);
+      group.rotation.z=0.1; group.position.x=0.4;
+      var mx=0,my=0,tx=0,ty=0,raf=null,t=0;
+      if(!reduce) window.addEventListener("pointermove",function(e){ tx=(e.clientY/innerHeight-0.5)*0.25; ty=(e.clientX/innerWidth-0.5)*0.5; },{passive:true});
+      function loop(){ raf=requestAnimationFrame(loop); t+=0.004;
+        if(!reduce) group.rotation.y+=0.0032; mx+=(tx-mx)*0.05; my+=(ty-my)*0.05;
+        group.rotation.x=0.04+mx; group.position.y=Math.sin(t)*0.22; renderer.render(scene,cam); }
+      loop();
+      if(reduce){ group.rotation.y=0.5; renderer.render(scene,cam); if(raf)cancelAnimationFrame(raf); }
+      window.addEventListener("resize",function(){ var nw=holder.clientWidth,nh=holder.clientHeight; if(!nw||!nh)return;
+        cam.aspect=nw/nh; cam.updateProjectionMatrix(); renderer.setSize(nw,nh); });
+    }
+
+    /* ---- copy ---- */
+    function initCopy(){
+      document.querySelectorAll("[data-copy]").forEach(function(btn){
+        btn.addEventListener("click",function(){
+          var span=document.querySelector('[data-k="'+btn.getAttribute("data-copy")+'"]'); var txt=span?span.textContent.trim():"";
+          function done(){ var o=btn.textContent; btn.textContent="Copied"; setTimeout(function(){btn.textContent=o;},1300); }
+          if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(function(){sel(span);});
+          else sel(span);
+        });
+      });
+    }
+    function sel(n){ if(!n)return; try{var r=document.createRange();r.selectNodeContents(n);var s=getSelection();s.removeAllRanges();s.addRange(r);}catch(e){} }
+
+    /* ======= inline editing + persistence ======= */
+    var DRAFT="aurelia_draft_v2", editing=false, cap=null, capReady=false;
+    function applyDraft(){ try{ var raw=localStorage.getItem(DRAFT); if(!raw)return; var d=JSON.parse(raw);
+      Object.keys(d.k||{}).forEach(function(k){ var el=document.querySelector('[data-k="'+k+'"]'); if(el)el.textContent=d.k[k]; });
+      if(d.team){ var st=document.getElementById("app-state"); try{var c=JSON.parse(st.textContent);c.team=d.team;st.textContent=JSON.stringify(c);}catch(e){} }
+    }catch(e){} }
+    function collect(){ var k={}; document.querySelectorAll("#page [data-k]").forEach(function(el){ k[el.getAttribute("data-k")]=el.textContent; });
+      var team=[]; document.querySelectorAll("#team-grid .member").forEach(function(m){ var n=m.querySelector("h5"),r=m.querySelector("p"); team.push([n?n.textContent:"",r?r.textContent:""]); });
+      return {k:k,team:team}; }
+    function syncIsland(data){ try{ var st=document.getElementById("app-state"); var c=JSON.parse(st.textContent); c.team=data.team; st.textContent=JSON.stringify(c);}catch(e){} }
+    function toast(m){ var t=document.createElement("div"); t.className="toast"; t.textContent=m; document.body.appendChild(t);
+      requestAnimationFrame(function(){t.classList.add("show");}); setTimeout(function(){t.classList.remove("show");setTimeout(function(){t.remove();},350);},2500); }
+
+    var RESET=':root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-family:system-ui,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}';
+    var SKEL='<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+RESET+'</style></head><body>';
+    function buildDoc(){
+      var title=(document.querySelector('[data-k="brand.name"]')||{textContent:"Atelier Aurelia"}).textContent.trim()||"Atelier Aurelia";
+      var styleTxt=document.getElementById("main-style").textContent;
+      var clone=document.getElementById("page").cloneNode(true);
+      clone.querySelectorAll("[contenteditable]").forEach(function(e){e.removeAttribute("contenteditable");});
+      var cc=clone.querySelector("#cover-canvas"); if(cc) cc.replaceChildren();
+      var tg=clone.querySelector("#team-grid"); if(tg) tg.innerHTML="";
+      // reset pages to first active, strip transient transforms
+      clone.querySelectorAll(".page").forEach(function(p,i){ p.classList.remove("is-active","beneath"); p.removeAttribute("style"); if(i===0)p.classList.add("is-active"); });
+      clone.querySelectorAll(".dot").forEach(function(d,i){ d.classList.toggle("on",i===0); });
+      var cnt=clone.querySelector("#count"); if(cnt) cnt.textContent="01 / "+String(clone.querySelectorAll(".page").length).padStart(2,"0");
+      clone.querySelector("#toc") && clone.querySelector("#toc").classList.remove("open");
+      var head='<meta name="claude:viewport-fit-sides" content="cover">'+'<title>'+esc(title)+'</title>'+'<style id="main-style">'+styleTxt+'</style>'+'<div class="grain" aria-hidden="true"></div>';
+      return SKEL+head+clone.outerHTML+'</body></html>';
+    }
+    function enterEdit(){ editing=true; document.body.classList.add("editing");
+      document.querySelectorAll('#page [data-k]').forEach(function(el){ el.setAttribute("contenteditable","true"); });
+      document.querySelectorAll('#team-grid h5,#team-grid p').forEach(function(el){ el.setAttribute("contenteditable","true"); });
+      document.getElementById("ed-start").classList.add("hide"); document.getElementById("ed-save").classList.remove("hide"); document.getElementById("ed-cancel").classList.remove("hide");
+      toast("Click any text to edit, then Save"); }
+    function exitEdit(){ editing=false; document.body.classList.remove("editing");
+      document.querySelectorAll('[contenteditable]').forEach(function(el){ el.removeAttribute("contenteditable"); });
+      document.getElementById("ed-start").classList.remove("hide"); document.getElementById("ed-save").classList.add("hide"); document.getElementById("ed-cancel").classList.add("hide"); }
+    function save(){ var data=collect(); syncIsland(data); try{localStorage.setItem(DRAFT,JSON.stringify(data));}catch(e){} exitEdit();
+      if(capReady&&cap){ var html; try{html=buildDoc();}catch(e){toast("Saved on this device");return;}
+        cap.publish(html).then(function(){toast("Saved & published for everyone");}).catch(function(err){ toast(err&&err.code==="conflict"?"Someone else just saved":"Saved on this device"); });
+      } else toast("Saved on this device"); }
+    function initEditor(){
+      var bar=document.createElement("div"); bar.className="editbar";
+      bar.innerHTML='<button id="ed-cancel" class="hide">Cancel</button><button id="ed-save" class="primary hide">Save</button><button id="ed-start">✎ Edit</button>';
+      document.body.appendChild(bar);
+      document.getElementById("ed-start").addEventListener("click",enterEdit);
+      document.getElementById("ed-save").addEventListener("click",save);
+      document.getElementById("ed-cancel").addEventListener("click",function(){ exitEdit(); applyDraft(); renderTeam(); toast("Changes discarded"); });
+      if(window.claude&&claude.use){ claude.use("artifact").then(function(c){cap=c;capReady=!!c;}).catch(function(){capReady=false;}); }
+    }
+
+    /* ---- events ---- */
+    document.getElementById("next").addEventListener("click",function(){go(1);});
+    document.getElementById("prev").addEventListener("click",function(){go(-1);});
+    document.getElementById("pg-next").addEventListener("click",function(){go(1);});
+    document.getElementById("pg-prev").addEventListener("click",function(){go(-1);});
+    document.getElementById("fs-btn").addEventListener("click",toggleFs);
+    document.addEventListener("fullscreenchange",syncFsLabel);
+    document.addEventListener("webkitfullscreenchange",syncFsLabel);
+    document.addEventListener("keydown",function(e){
+      if(document.getElementById("toc").classList.contains("open")){ if(e.key==="Escape") document.getElementById("toc").classList.remove("open"); return; }
+      if(editing){ if(e.key==="Escape") exitEdit(); return; }
+      if(e.key==="ArrowRight"||e.key==="PageDown"){ go(1); }
+      else if(e.key==="ArrowLeft"||e.key==="PageUp"){ go(-1); }
+    });
+    // swipe (phones)
+    var sx=0,sy=0;
+    stage.addEventListener("touchstart",function(e){ if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY;} },{passive:true});
+    stage.addEventListener("touchend",function(e){ if(editing)return; var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.4){ go(dx<0?1:-1); } },{passive:true});
+    window.addEventListener("resize",fit);
+
+    /* ---- boot ---- */
+    applyDraft();
+    renderTeam();
+    buildChrome();
+    initCopy();
+    initEditor();
+    fit(); sync();
+    (window.requestIdleCallback||function(f){setTimeout(f,200);})(initThree);
+  })();
+  </script>
+
+</div>
+
+</body>
+</html>
