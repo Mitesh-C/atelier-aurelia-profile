@@ -1,6 +1,6 @@
-# Atelier Aurelia — Company Profile
+# Manstone Interiors — Company Profile
 
-An interactive, page-turning digital company profile (brochure) for Atelier Aurelia,
+An interactive, page-turning digital company profile (brochure) for Manstone Interiors,
 an interior design & turnkey fit-out studio.
 
 - Single-page static site: `index.html` + `assets/` images. No build step, no dependencies to install.
